@@ -46,7 +46,13 @@
             
             /** The number of pages smoothState will try to store in memory and not request again */
             pageCacheSize : 0,
-            
+
+            /** Appends a cachebuster parameters to the URLs requested via HXR, this is normally desirable, but in some use cases (i.e. HTML5 offline cache), should be possible to turn it off  **/
+            cacheBuster : true,
+
+            /** Forces a redraw after animations are completed **/
+            forceRedraw : true, 
+
             /** A function that can be used to alter urls before they are used to request content */
             alterRequestUrl : function (url) {
                 return url;
@@ -83,6 +89,7 @@
             callback : function(url, $container, $content) {
 
             }
+
         },
         
         /** Utility functions that are decoupled from SmoothState */
@@ -276,14 +283,16 @@
 
                 $element.on("allanimationend" + resetOn, function(){
                     animationCount = 0;
-                    utility.redraw($element);
+                    if (options.forceRedraw) {
+                        utility.redraw($element);
+                    }
                 });
             },
 
             /** Forces browser to redraw elements */
-            redraw: function ($element) {
+            redraw: function ($element) {              
                 $element.height();
-                //setTimeout(function(){$element.height("100%");}, 0);
+                setTimeout(function(){$element.height("100%");}, 0);
             }
         }, // eo utility
 
@@ -446,7 +455,10 @@
                     cache[url] = { status: "fetching" };
 
                     var requestUrl  = options.alterRequestUrl(url) || url,
-                        request     = $.ajax(requestUrl);
+                        requestOptions = {
+                            cache: options.cacheBuster
+                        },
+                        request     = $.ajax(requestUrl,requestOptions);
 
                     // Store contents in cache variable if successful
                     request.success(function (html) {
