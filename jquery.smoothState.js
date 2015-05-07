@@ -283,7 +283,7 @@
 
                 $element.on("allanimationend" + resetOn, function(){
                     animationCount = 0;
-                    if (options.forceRedraw) {
+                    if ($.fn.smoothState.options.forceRedraw) {
                         utility.redraw($element);
                     }
                 });
